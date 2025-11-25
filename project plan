@@ -1,0 +1,105 @@
+Erin Proctor and Jerri Boyd 
+
+SI 201 Final Project Plan
+
+a. What is your group's name?
+
+Melody Metrics 
+
+b. Who are the people in the group (first name, last name, umich email for all members)?
+
+Jerri Boyd jerrib@umich.edu 
+Erin Proctor eproc@umich.edu
+
+c. What APIs/websites will you be gathering data from? The base URLs for the APIs/websites must be different for them to count as different APIs.
+
+Spotify API- https://developer.spotify.com/documentation/web-api
+Last.fm API- https://www.last.fm/api/authentication 
+
+d. What data will you collect from each API/website and store in a database? Be specific.
+
+From Spotify:
+Song name
+Artist name
+Release year
+Album info
+Primary genre
+From Last.fm:
+Global play count
+Number of listeners
+Tags (rock, R&B, EDM, etc.)
+e. What data will you be calculating from the data in the database? Be specific.
+Avg. popularity for each release decade (80s, 90s, 00s, 10s, 20s)
+Most popular genres by decade
+Song “longevity index” = plays / (2025 - release_year)
+
+f. What visualization package will you be using (Matplotlib, Plotly, Seaborn, etc)?
+Seaborn - to create a bar chart, scatterplot, and heatmap. 
+Matplotlib- adjust formatting (size, title, labels, colors, etc)
+
+g. What graphs/charts will you be creating?
+Bar chart: popularity by decade
+Scatter: release year vs play count
+Heatmap: genre × decade popularity
+
+h. What functions are you creating and who is responsible for each function?  What input and output does each function take?   Include a function diagram with this information on it.  
+
+                           
+     main.py                   
+  (Runs the entire project workflow)              
+               
+   spotify_data.py                             
+get_spotify_tracks(query) - Erin 
+    Input: search term (artist, genre)
+    Output: list of track metadata dictionaries
+             
+get_spotify_audio_features(track_ids) - Erin 
+    Input: list of Spotify track IDs
+    Output: audio feature data (tempo, energy, etc.)
+                     
+store_spotify_data(db_cursor, track_list, feature_list)-(Jerri)
+    Input: database cursor, metadata + audio features
+    Output: Inserts into tracks, artists, audio_features tables
+
+lastfm_data.py                               
+get_lastfm_stats(track_name, artist_name) - Erin 
+    Input: track name, artist
+    Output: listeners, playcount, top tag(s)
+                
+store_lastfm_data(db_cursor, stats) - Erin 
+    Input: database cursor, Last.fm stats (linked via track_id)
+    Output: Inserts into lastfm_stats table
+                    
+database.py                                 
+connect_db(db_name) - Erin 
+    Input: database filename
+    Output: conn, cursor
+                      
+create_tables(cursor)(Jerri)
+    Input: database cursor
+    Output: SQLite tables created
+
+analysis_visuals.py                              
+calculate_popularity_by_decade(cursor) (Jerri)
+    Input: SQL JOIN tracks + lastfm_stats
+    Output: {decade: avg_popularity
+
+calculate_listeners_by_decade(cursor) - Erin 
+    Input: SQL JOIN across tables
+    Output: {decade: avg_listeners}
+               
+calculate_genre_trends(cursor)
+    Input: SQL JOIN tracks + artists + lastfm_stats(Jerri)
+    Output: genre popularity per decade
+         
+plot_popularity_by_decade(data)(Jerri)
+    Input: dictionary of decade→popularity
+    Output: bar chart
+            
+plot_scatter_releaseyear_vs_listeners(data) - Erin 
+    Input: paired lists (year, listeners)
+    Output: scatter plot
+       
+plot_genre_trends(data)(Jerri)
+    Input: genre × decade data
+    Output: line graph
