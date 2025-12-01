@@ -95,3 +95,68 @@ def get_spotify_tracks(query, token, limit=25):
     return tracks
 #function to search for tracks
 
+
+def get_spotify_audio_features(track_ids, token):
+    # Input:
+    #   track_ids (list) - List of Spotify track IDs
+    #   token (str) - Bearer access token
+    # Output:
+    #   features (dict) - Dictionary mapping track_id to features dictionary
+    headers = {"Authorization": f"Bearer {token}"}
+    url = "https://api.spotify.com/v1/audio-features"
+    features = {}
+
+    for i in range(0, len(track_ids), 100):
+        batch_ids = track_ids[i:i+100]
+        params = {"ids": ",".join(batch_ids)}
+        response = requests.get(url, headers=headers, params=params).json()
+
+        for item in response["audio_features"]:
+            if item:
+                features[item["id"]] = {
+                    "danceability": item["danceability"],
+                    "energy": item["energy"],
+                    "tempo": item["tempo"],
+                    "valence": item["valence"]
+                }
+    return features
+
+
+def get_lastfm_track_info(artist, track, api_key):
+    # Input:
+    #   artist (str) - Artist name
+    #   track (str) - Track name
+    #   api_key (str) - Last.fm API key
+    # Output:
+    #   info (dict) - Dictionary with playcount, listeners, top_tag
+    url = "http://ws.audioscrobbler.com/2.0/"
+    params = {
+        "method": "track.getInfo",
+        "api_key": api_key,
+        "artist": artist,
+        "track": track,
+        "format": "json"
+    }
+
+    response = requests.get(url, params=params).json()
+
+    if "track" in response:
+        track_info = response["track"]
+        playcount = int(track_info["playcount"])
+        listeners = int(track_info["listeners"])
+        top_tag = None
+        if "toptags" in track_info and track_info["toptags"]["tag"]:
+            top_tag = track_info["toptags"]["tag"][0]["name"]
+
+        return {
+            "playcount": playcount,
+            "listeners": listeners,
+            "top_tag": top_tag
+        }
+    else:
+        return {
+            "playcount": 0,
+            "listeners": 0,
+            "top_tag": None
+        }
+
