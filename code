@@ -173,11 +173,11 @@ def store_data(db_cursor, stats):
     if stats is None:
         return  
     
-    db_cursor.execute(""""
+    db_cursor.execute("""
         INSERT OR IGNORE INTO lastfm_stats
         (track_id, playcount, listeners, top_tag)
         VALUES (?, ?, ?, ?) 
-    """" , (
+    """, (
         stats.get("track_id"),
         stats.get("playcount"),
         stats.get("listeners"),
@@ -185,3 +185,12 @@ def store_data(db_cursor, stats):
     ))
 # function to store Last.fm data
                       
+import sqlite3
+def connect_db(db_path):
+    # Input:
+    #   db_path (str) - Path to SQLite database file
+    # Output:
+    #   conn (sqlite3.Connection) - Database connection object
+    conn = sqlite3.connect(db_path)
+    curr= conn.cursor()
+    return conn, curr
