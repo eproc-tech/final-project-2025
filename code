@@ -159,4 +159,29 @@ def get_lastfm_track_info(artist, track, api_key):
             "listeners": 0,
             "top_tag": None
         }
+# function to get Last.fm track info
 
+
+
+def store_data(db_cursor, stats):
+    # Input:
+    #   db_cursor (sqlite3.Cursor) - Database cursor
+    #   stats (dict) - Dictionary with keys: artists, tracks, features, lastfm
+    # Output:
+    #   None (stores data in the database)
+    
+    if stats is None:
+        return  
+    
+    db_cursor.execute(""""
+        INSERT OR IGNORE INTO lastfm_stats
+        (track_id, playcount, listeners, top_tag)
+        VALUES (?, ?, ?, ?) 
+    """" , (
+        stats.get("track_id"),
+        stats.get("playcount"),
+        stats.get("listeners"),
+        stats.get("top_tag")
+    ))
+# function to store Last.fm data
+                      
